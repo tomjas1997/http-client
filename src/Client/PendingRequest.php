@@ -365,9 +365,9 @@ class PendingRequest
      */
     public function contentType(string $contentType)
     {
-        $this->options['headers']['Content-Type'] = $contentType;
-
-        return $this;
+        return tap($this, function () use ($contentType) {
+            $this->options['headers']['Content-Type'] = $contentType;
+        });
     }
 
     /**
@@ -426,9 +426,9 @@ class PendingRequest
      */
     public function replaceHeaders(array $headers)
     {
-        $this->options['headers'] = array_merge($this->options['headers'] ?? [], $headers);
-
-        return $this;
+        return tap($this, function () use ($headers) {
+            $this->options['headers'] = array_merge($this->options['headers'] ?? [], $headers);
+        });
     }
 
     /**
@@ -718,40 +718,6 @@ class PendingRequest
     public function throwUnless($condition)
     {
         return $this->throwIf(! $condition);
-    }
-
-    /**
-     * Dump the request before sending.
-     *
-     * @return $this
-     */
-    public function dump()
-    {
-        $values = func_get_args();
-
-        return $this->beforeSending(function (Request $request, array $options) use ($values) {
-            foreach (array_merge($values, [$request, $options]) as $value) {
-                VarDumper::dump($value);
-            }
-        });
-    }
-
-    /**
-     * Dump the request before sending and end the script.
-     *
-     * @return $this
-     */
-    public function dd()
-    {
-        $values = func_get_args();
-
-        return $this->beforeSending(function (Request $request, array $options) use ($values) {
-            foreach (array_merge($values, [$request, $options]) as $value) {
-                VarDumper::dump($value);
-            }
-
-            exit(1);
-        });
     }
 
     /**
